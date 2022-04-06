@@ -28,11 +28,17 @@ public class ControladorBDImplementacion implements ControladorDatos {
 	final String SELECTpers = "SELECT * FROM persona";
 	
 	final String INSERTconoce = "INSERT INTO conoce(dniP1,dniP2,relacion) VALUES(?,?,?)";
+	final String SELECTconoce = "SELECT * FROM persona WHERE dni IN(SELECT dniP2 FROM conoce WHERE dniP1 = ?)";
 	final String INSERTinvolucrado = "INSERT INTO involucrado(codCaso,codBanda) VALUES(?,?)";
+	final String SELECTbandasCaso = "SELECT * FROM banda WHERE codBanda IN (SELECT codBanda FROM involucrado WHERE codCaso = ?)";
 	final String INSERTparticipa = "INSERT INTO participa(codCaso,dni,implicación) VALUES(?,?,?)";
+	final String SELECTpersonasCaso = "SELECT * FROM persona WHERE dni IN (SELECT dni FROM participa WHERE codCaso = ?)";
 	final String INSERTidentifica = "INSERT INTO identifica(dni,codResto) VALUES(?,?)";
+	final String SELECTidentifica = "SELECT * FROM persona WHERE dni IN (SELECT dni FROM identifica WHERE codResto = ?)";
 	final String INSERTpertenece = "INSERT INTO pertenece(codBanda,dni,rol) VALUES(?,?,?)";
+	final String SELECTpertenece = "SELECT * FROM persona WHERE dni IN (SELECT dni FROM pertenece WHERE codBanda = ?)";
 	final String INSERTtrabaja = "INSERT INTO trabaja(codBanda1,codBanda2) VALUES(?,?)";
+	final String SELECTtrabaja = "SELECT * FROM banda WHERE codBanda IN (SELECT codBanda1 FROM trabaja WHERE codBanda2 = ?)";
 	
 	// <--- Conexión --->
 	private PreparedStatement stmnt;
@@ -394,8 +400,43 @@ public class ControladorBDImplementacion implements ControladorDatos {
 
 	@Override
 	public Map<String, Banda> listarInvolucrados(String codCaso) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet rs = null;
+		Banda banda;
+		Map<String,Banda> involucrados = new TreeMap<>();
+		
+		this.openConnection();
+		
+		try {
+			stmnt = con.prepareStatement(SELECTbandasCaso);
+			stmnt.setString(1, codCaso);
+			
+			rs = stmnt.executeQuery();
+			
+			while (rs.next()) {
+				banda = new Banda();
+				
+				banda.setCodBanda(rs.getString("codBanda"));
+				banda.setOrganizada(rs.getBoolean("organizada"));
+				banda.setNombre(rs.getString("nombre"));
+				banda.setAmbito(rs.getString("ambito"));
+				banda.setFechaIni(rs.getDate("fechaIni").toLocalDate());
+				banda.setFechaFin(rs.getDate("fechaFin").toLocalDate());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		this.closeConnection();
+		return involucrados;
 	}
 	
 	// <--- Participa --->
@@ -421,8 +462,44 @@ public class ControladorBDImplementacion implements ControladorDatos {
 
 	@Override
 	public Map<String, Persona> listarParticipantes(String codCaso) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet rs = null;
+		Persona per;
+		Map<String,Persona> participantes = new TreeMap<>();
+		
+		this.openConnection();
+		
+		try {
+			stmnt = con.prepareStatement(SELECTpersonasCaso);
+			stmnt.setString(1, codCaso);
+			
+			rs = stmnt.executeQuery();
+			
+			while (rs.next()) {
+				int[] telfs = {rs.getInt("telf1"),rs.getInt("telf2")};
+				per = new Persona();
+				
+				per.setDni(rs.getString("dni"));
+				per.setNombre(rs.getString("nombre"));
+				per.setApellido(rs.getString("apellido"));
+				per.setTelefonos(telfs);
+				per.setFechaNac(rs.getDate("fechaNac").toLocalDate());
+				per.setFechaFal(rs.getDate("fechaFal").toLocalDate());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		this.closeConnection();
+		return participantes;
 	}
 	
 	// <--- Identifica --->
@@ -447,8 +524,42 @@ public class ControladorBDImplementacion implements ControladorDatos {
 
 	@Override
 	public Persona buscarIdentificado(String codResto) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet rs = null;
+		Persona per = null;
+		
+		this.openConnection();
+		
+		try {
+			stmnt = con.prepareStatement(SELECTidentifica);
+			stmnt.setString(1, codResto);
+			
+			rs = stmnt.executeQuery();
+			
+			if (rs.next()) {
+				int[] telfs = {rs.getInt("telf1"),rs.getInt("telf2")};
+				per = new Persona();
+				
+				per.setDni(rs.getString("dni"));
+				per.setNombre(rs.getString("nombre"));
+				per.setApellido(rs.getString("apellido"));
+				per.setTelefonos(telfs);
+				per.setFechaNac(rs.getDate("fechaNac").toLocalDate());
+				per.setFechaFal(rs.getDate("fechaFal").toLocalDate());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		this.closeConnection();
+		return per;
 	}
 	
 	// <--- Conoce --->
@@ -474,8 +585,44 @@ public class ControladorBDImplementacion implements ControladorDatos {
 
 	@Override
 	public Map<String, Persona> listarConocidos(String dni1) {
-		// TODO Auto-generated method stub
-		return null;
+		ResultSet rs = null;
+		Persona per;
+		Map<String,Persona> conocidos = new TreeMap<>();
+		
+		this.openConnection();
+		
+		try {
+			stmnt = con.prepareStatement(SELECTconoce);
+			stmnt.setString(1, dni1);
+			
+			rs = stmnt.executeQuery();
+			
+			while (rs.next()) {
+				int[] telfs = {rs.getInt("telf1"),rs.getInt("telf2")};
+				per = new Persona();
+				
+				per.setDni(rs.getString("dni"));
+				per.setNombre(rs.getString("nombre"));
+				per.setApellido(rs.getString("apellido"));
+				per.setTelefonos(telfs);
+				per.setFechaNac(rs.getDate("fechaNac").toLocalDate());
+				per.setFechaFal(rs.getDate("fechaFal").toLocalDate());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		this.closeConnection();
+		return conocidos;
 	}
 	
 	// <--- Pertenece --->
@@ -508,14 +655,62 @@ public class ControladorBDImplementacion implements ControladorDatos {
 	// <--- Trabaja --->
 	@Override
 	public void agregarRelacion(Banda banda, String codBanda2) {
-		// TODO Auto-generated method stub
+		this.openConnection();
 		
+		try {
+			stmnt = con.prepareStatement(INSERTtrabaja);
+			
+			stmnt.setString(1, banda.getCodBanda());
+			stmnt.setString(2, codBanda2);
+			
+			stmnt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		this.closeConnection();
 	}
 
 	@Override
-	public Map<String, Banda> listarBandas(String codBanda) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, Banda> listarRelaciones(String codBanda) {
+		ResultSet rs = null;
+		Banda banda;
+		Map<String,Banda> relaciones = new TreeMap<>();
+		
+		this.openConnection();
+		
+		try {
+			stmnt = con.prepareStatement(SELECTtrabaja);
+			stmnt.setString(1, codBanda);
+			
+			rs = stmnt.executeQuery();
+			
+			while (rs.next()) {
+				banda = new Banda();
+				
+				banda.setCodBanda(rs.getString("codBanda"));
+				banda.setOrganizada(rs.getBoolean("organizada"));
+				banda.setNombre(rs.getString("nombre"));
+				banda.setAmbito(rs.getString("ambito"));
+				banda.setFechaIni(rs.getDate("fechaIni").toLocalDate());
+				banda.setFechaFin(rs.getDate("fechaFin").toLocalDate());
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		this.closeConnection();
+		return relaciones;
 	}
 	
 }

@@ -76,5 +76,5 @@ public interface ControladorDatos {
 	
 	// <--- Trabaja --->
 	public void agregarRelacion(Banda banda, String codBanda2);
-	public Map<String,Banda> listarBandas(String codBanda);
+	public Map<String,Banda> listarRelaciones(String codBanda);
  }
