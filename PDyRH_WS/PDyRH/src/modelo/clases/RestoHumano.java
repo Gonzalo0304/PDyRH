@@ -14,13 +14,14 @@ public class RestoHumano {
 	private String colorOjos;
 	private float altura;
 	private String especificaciones;
+	private String codCaso;
 	
 	// <--- Constructores --->
 	public RestoHumano() {
 		super();
 	}
 	public RestoHumano(String codResto, String causa, LocalDateTime fechaMuerte, String ubicacion, String genero,
-			String tipoPelo, String colorPelo, String colorOjos, float altura, String especificaciones) {
+			String tipoPelo, String colorPelo, String colorOjos, float altura, String especificaciones, String codCaso) {
 		super();
 		this.codResto = codResto;
 		this.causa = causa;
@@ -32,6 +33,7 @@ public class RestoHumano {
 		this.colorOjos = colorOjos;
 		this.altura = altura;
 		this.especificaciones = especificaciones;
+		this.codCaso = codCaso;
 	}
 	
 	// <--- Getters y Setters --->
@@ -94,5 +96,11 @@ public class RestoHumano {
 	}
 	public void setEspecificaciones(String especificaciones) {
 		this.especificaciones = especificaciones;
+	}
+	public String getCodCaso() {
+		return codResto;
+	}
+	public void setCodCaso(String codCaso) {
+		this.codCaso = codCaso;
 	}
 }
