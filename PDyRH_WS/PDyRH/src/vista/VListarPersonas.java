@@ -66,6 +66,11 @@ public class VListarPersonas extends JDialog {
 			LabelVListarPersonaResult.setBounds(328, 11, 75, 14);
 			contentPanel.add(LabelVListarPersonaResult);
 		}
+		{
+			JButton ButtonVolverVListarPers = new JButton("Volver");
+			ButtonVolverVListarPers.setBounds(328, 213, 89, 23);
+			contentPanel.add(ButtonVolverVListarPers);
+		}
 	}
 
 }
